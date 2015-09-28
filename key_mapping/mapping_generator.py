@@ -8,7 +8,7 @@ import re
 regex = re.compile('#define +KEY_(?P<key>\w+)[ \t]+(?P<code>\w+)')
 SOURCE_FILE_PATH = 'input.h'
 PREFIX = 'KEY_'
-CODE_INDEX = len(PREFIX) - 1
+CODE_INDEX = len(PREFIX)
 DEST_PROPERTY_FILE_PATH = 'mapping.properties'
 
 with open(SOURCE_FILE_PATH) as header_file:
@@ -32,6 +32,11 @@ with open(SOURCE_FILE_PATH) as header_file:
                 searched_key = code[CODE_INDEX:]
                 # always print key=code, don't reference another key
 
-                properties_file.write("%s=%s\n" % (key, result_dict.get(searched_key, '')))
+                # properties file format: keycode=keychar
+                entry = result_dict.get(searched_key, None)
+                if entry:
+                    properties_file.write("%s=%s\n" % (entry, key))
+                else:
+                    print("Warning, not found value for '%s'" % code)
             else:
-                properties_file.write("%s=%s\n" % (key, code))
+                properties_file.write("%s=%s\n" % (code, key))
