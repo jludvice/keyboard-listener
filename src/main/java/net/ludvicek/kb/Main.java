@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -12,6 +13,14 @@ import java.util.concurrent.ExecutionException;
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    /**
+     * Example main method.
+     *
+     * @param args first argument is path to input device (eg system keyboard or barcode scanner
+     * @throws IOException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         if (args.length != 1) {
             System.err.println("Pass path to input device as first argument");
@@ -30,9 +39,13 @@ public class Main {
         };
         Runtime.getRuntime().addShutdownHook(new Thread(r));
 
+        InputStream is = Main.class.getClassLoader().getResourceAsStream("mapping.properties");
+
+        KeyCodeMapper mapper = KeyCodeMapper.fromMapping(is);
+        is.close();
 
         l.addListener(i -> {
-            System.out.println("catched keyCode: " + i);
+            System.out.println(String.format("Keycode: %s, key: %s", i, mapper.keyValue(i)));
         });
 
         l.listen();

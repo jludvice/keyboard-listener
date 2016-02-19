@@ -33,10 +33,21 @@ public class Listener implements Callable<String> {
         this.listeners = new LinkedList<>();
     }
 
+    /**
+     * Factory method - start listening from input device on given path.
+     *
+     * @param path eg: {@code /dev/input/by-path/platform-event-kbd }
+     * @return new instance
+     */
     public static Listener forPath(final String path) {
         return new Listener(path);
     }
 
+    /**
+     * Listen on key events. Listener must accept integer value representing keyCode of pressed key.
+     *
+     * @param consumer event handler
+     */
     public void addListener(Consumer<Integer> consumer) {
         this.listeners.add(consumer);
     }
@@ -46,6 +57,11 @@ public class Listener implements Callable<String> {
         return (b2 << 1) ^ b1;
     }
 
+    /**
+     * Start listening on device.
+     *
+     * @throws FileNotFoundException
+     */
     public void listen() throws FileNotFoundException {
         if (backend != null) {
             logger.error("Don't call listen() multiple times. Ignoring this call");
@@ -61,6 +77,12 @@ public class Listener implements Callable<String> {
         backend.shutdown();
     }
 
+    /**
+     * Stop listening on device.
+     *
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void stopListening() throws ExecutionException, InterruptedException {
         logger.info("Stopping keyboard watcher.");
         this.listeners = null;
